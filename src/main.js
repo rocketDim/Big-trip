@@ -3,7 +3,7 @@ import { createTripInfoTemplate } from './view/trip-info.js';
 import { tripCostTemplate } from './view/trip-cost.js';
 import { createFilterTemplate } from './view/filter.js';
 import { createTripBordTemplate } from './view/trip-bord.js';
-import { createNewPointTemplate } from './view/new-points.js';
+import { createNewPointTemplate } from './view/new-point.js';
 import { createEditPointTemplate } from './view/edit-point.js';
 import { createPointTemplate } from './view/point.js';
 
@@ -16,7 +16,7 @@ const render = (container, template, position = 'beforeend') => {
 
 
 const menuElement = siteBodyElement.querySelector('.trip-controls__navigation');
-render (menuElement, createMainMenuTemplate());
+render(menuElement, createMainMenuTemplate());
 
 const tripDetailsElement = siteBodyElement.querySelector('.trip-main');
 render(tripDetailsElement, createTripInfoTemplate(), 'afterbegin');
