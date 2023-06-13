@@ -13,32 +13,23 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var createFilterItemTemplate = function createFilterItemTemplate(filterData) {
-  return filterData.map(function (_ref) {
-    var name = _ref.name,
-        amount = _ref.amount;
-    return "<div class=\"trip-filters__filter\">\n     <input id=\"filter-".concat(name, "\" class=\"trip-filters__filter-input  visually-hidden\" type=\"radio\" name=\"trip-filter\" value=\"").concat(amount, "\" checked>\n     <label class=\"trip-filters__filter-label\" for=\"filter-everything\">").concat(name, " ").concat(amount, "</label>\n    </div>");
-  }).join('');
+var createMainMenuTemplate = function createMainMenuTemplate() {
+  return "<nav class=\"trip-controls__trip-tabs  trip-tabs\">\n    <a class=\"trip-tabs__btn  trip-tabs__btn--active\" href=\"#\">Table</a>\n    <a class=\"trip-tabs__btn\" href=\"#\">Stats</a>\n  </nav>";
 };
 
-var createFilterTemplate = function createFilterTemplate(filterData) {
-  return "<form class=\"trip-filters\" action=\"#\" method=\"get\">\n    ".concat(createFilterItemTemplate(filterData), "\n    <button class=\"visually-hidden\" type=\"submit\">Accept filter</button>\n  </form>");
-};
-
-var Filter =
+var MainMenu =
 /*#__PURE__*/
 function () {
-  function Filter(filterData) {
-    _classCallCheck(this, Filter);
+  function MainMenu() {
+    _classCallCheck(this, MainMenu);
 
-    this._filterData = filterData;
     this._element = null;
   }
 
-  _createClass(Filter, [{
+  _createClass(MainMenu, [{
     key: "getTemplate",
     value: function getTemplate() {
-      return createFilterTemplate(this._filterData);
+      return createMainMenuTemplate();
     }
   }, {
     key: "getElement",
@@ -56,7 +47,7 @@ function () {
     }
   }]);
 
-  return Filter;
+  return MainMenu;
 }();
 
-exports["default"] = Filter;
+exports["default"] = MainMenu;

@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+
 dayjs.extend(duration);
 
 const DAYS_COUNT = 10;
@@ -10,6 +11,12 @@ const TimeFormat = {
     MILLISECOND_PER_MINUTE: 60000,
 };
 
+const RenderPosition = {
+    AFTERBEGIN: 'afterbegin',
+    BEFOREEND: 'beforeend',
+};
+
+
 // https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_random
 const getRandomInteger = (a = 0, b = 1) => {
     const lower = Math.ceil(Math.min(a, b));
@@ -17,9 +24,11 @@ const getRandomInteger = (a = 0, b = 1) => {
     return Math.floor(Math.random() * (upper - lower + 1) + lower);
 };
 
+
 const getRandomArrayElement = (array) => {
     return array[(getRandomInteger(0, (array.length - 1)))];
 };
+
 
 const generateRandomArray = (array, minLength = 0, maxLength = array.length) => {
     let temp;
@@ -34,9 +43,11 @@ const generateRandomArray = (array, minLength = 0, maxLength = array.length) => 
     return array;
 };
 
+
 const pickOffersDependOnType = (type, offers) => {
     return offers.find((item) => item.type === type).offers;
 };
+
 
 const dateConverter = {
     'D MMM': (date) => dayjs(date).format('D MMM'),
@@ -65,10 +76,32 @@ const isDateExpired = (date) => dayjs().isAfter(date, 'm');
 const isDateInFuture = (date) => dayjs().isBefore(date, 'm');
 const isDateCurrent = (date) => dayjs().isSame(date, 'm');
 
-const isEventContinues = (dateFrom, dateTo) => isDateExpired(dateFrom) && isDateInFuture(dateTo);
+const isEventContinues = (dateFrom, dateTo) => {
+    return isDateExpired(dateFrom) && isDateInFuture(dateTo);
+};
+
+
+const createElement = (template) => {
+    const newElement = document.createElement('div');
+    newElement.innerHTML = template;
+    return newElement.firstChild;
+};
+
+
+const render = (container, element, position = RenderPosition.BEFOREEND) => {
+    switch (position) {
+        case RenderPosition.AFTERBEGIN:
+            container.prepend(element);
+            break;
+        case RenderPosition.BEFOREEND:
+            container.append(element);
+            break;
+    }
+};
 
 
 export {
     getRandomInteger, getRandomArrayElement, generateRandomArray, pickOffersDependOnType,
-    humanizeDate, getTimeDuration, isDateExpired, isDateInFuture, isDateCurrent, isEventContinues, compareTwoDates
+    humanizeDate, getTimeDuration, isDateExpired, isDateInFuture, isDateCurrent, isEventContinues, compareTwoDates,
+    render, RenderPosition, createElement
 };
