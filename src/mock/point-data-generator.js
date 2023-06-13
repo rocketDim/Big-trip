@@ -19,13 +19,11 @@ const Period = {
     BASE_PRICE_MAX: 1500,
 };
 
-
 const generatePicture = () => {
     return {
         src: `http://picsum.photos/248/152?r=${Math.random()}`,
     };
 };
-
 
 const generateDestination = (cites, interval) => {
     const PossibleDescriptions = [
@@ -48,7 +46,6 @@ const generateDestination = (cites, interval) => {
     };
 };
 
-
 const createDateGenerator = () => {
     let startDate = dayjs().add(getRandomInteger(Period.START_DATE_MIN, Period.START_DATE_MAX), 'd');
     return () => {
@@ -62,7 +59,6 @@ const createDateGenerator = () => {
     };
 };
 const generateDate = createDateGenerator();
-
 
 const generatePointData = () => {
     const type = getRandomArrayElement(types);

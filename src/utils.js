@@ -17,11 +17,9 @@ const getRandomInteger = (a = 0, b = 1) => {
     return Math.floor(Math.random() * (upper - lower + 1) + lower);
 };
 
-
 const getRandomArrayElement = (array) => {
     return array[(getRandomInteger(0, (array.length - 1)))];
 };
-
 
 const generateRandomArray = (array, minLength = 0, maxLength = array.length) => {
     let temp;
@@ -36,11 +34,9 @@ const generateRandomArray = (array, minLength = 0, maxLength = array.length) => 
     return array;
 };
 
-
 const pickOffersDependOnType = (type, offers) => {
     return offers.find((item) => item.type === type).offers;
 };
-
 
 const dateConverter = {
     'D MMM': (date) => dayjs(date).format('D MMM'),
@@ -69,9 +65,7 @@ const isDateExpired = (date) => dayjs().isAfter(date, 'm');
 const isDateInFuture = (date) => dayjs().isBefore(date, 'm');
 const isDateCurrent = (date) => dayjs().isSame(date, 'm');
 
-const isEventContinues = (dateFrom, dateTo) => {
-    return isDateExpired(dateFrom) && isDateInFuture(dateTo);
-};
+const isEventContinues = (dateFrom, dateTo) => isDateExpired(dateFrom) && isDateInFuture(dateTo);
 
 
 export {
