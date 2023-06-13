@@ -11,3 +11,4 @@ Thumbs.db
 node_modules/
 
 # Собранные файлы (допишите самостоятельно)
+dist/bundle.js

@@ -5,7 +5,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports["default"] = void 0;
 
-var _utils = require("./../utils.js");
+var _utils = require("../utils.js");
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -13,32 +13,23 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var createFilterItemTemplate = function createFilterItemTemplate(filterData) {
-  return filterData.map(function (_ref) {
-    var name = _ref.name,
-        amount = _ref.amount;
-    return "<div class=\"trip-filters__filter\">\n     <input id=\"filter-".concat(name, "\" class=\"trip-filters__filter-input  visually-hidden\" type=\"radio\" name=\"trip-filter\" value=\"").concat(amount, "\" checked>\n     <label class=\"trip-filters__filter-label\" for=\"filter-everything\">").concat(name, " ").concat(amount === 0 ? '' : amount, "</label>\n    </div>");
-  }).join('');
+var createListEmptyTemplate = function createListEmptyTemplate() {
+  return '<p class="trip-events__msg">Click New Event to create your first point</p>';
 };
 
-var createFilterTemplate = function createFilterTemplate(filterData) {
-  return "<form class=\"trip-filters\" action=\"#\" method=\"get\">\n    ".concat(createFilterItemTemplate(filterData), "\n    <button class=\"visually-hidden\" type=\"submit\">Accept filter</button>\n  </form>");
-};
-
-var Filter =
+var ListEmpty =
 /*#__PURE__*/
 function () {
-  function Filter(filterData) {
-    _classCallCheck(this, Filter);
+  function ListEmpty() {
+    _classCallCheck(this, ListEmpty);
 
-    this._filterData = filterData;
     this._element = null;
   }
 
-  _createClass(Filter, [{
+  _createClass(ListEmpty, [{
     key: "getTemplate",
     value: function getTemplate() {
-      return createFilterTemplate(this._filterData);
+      return createListEmptyTemplate();
     }
   }, {
     key: "getElement",
@@ -56,7 +47,7 @@ function () {
     }
   }]);
 
-  return Filter;
+  return ListEmpty;
 }();
 
-exports["default"] = Filter;
+exports["default"] = ListEmpty;

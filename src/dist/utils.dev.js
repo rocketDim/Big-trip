@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createElement = exports.RenderPosition = exports.render = exports.compareTwoDates = exports.isEventContinues = exports.isDateCurrent = exports.isDateInFuture = exports.isDateExpired = exports.getTimeDuration = exports.humanizeDate = exports.pickOffersDependOnType = exports.generateRandomArray = exports.getRandomArrayElement = exports.getRandomInteger = void 0;
+exports.isEscEvent = exports.createElement = exports.RenderPosition = exports.render = exports.compareTwoDates = exports.isEventContinues = exports.isDateCurrent = exports.isDateInFuture = exports.isDateExpired = exports.getTimeDuration = exports.humanizeDate = exports.pickOffersDependOnType = exports.generateRandomArray = exports.getRandomArrayElement = exports.getRandomInteger = void 0;
 
 var _dayjs = _interopRequireDefault(require("dayjs"));
 
@@ -157,3 +157,9 @@ var render = function render(container, element) {
 };
 
 exports.render = render;
+
+var isEscEvent = function isEscEvent(evt) {
+  return evt.key === ('Escape' || 'Esc');
+};
+
+exports.isEscEvent = isEscEvent;
