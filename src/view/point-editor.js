@@ -1,15 +1,18 @@
-import AbstractView from './abstract.js';
+import SmartView from './smart.js';
 import dayjs from 'dayjs';
-import { cites, DateFormat, types } from '../const.js';
+import flatpickr from 'flatpickr';
+import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+import { cities, DateFormat, types } from '../const.js';
 import { getRandomArrayElement, getRandomInteger } from '../utils/common.js';
-import { humanizeDate } from '../utils/point.js';
+import { compareTwoDates, humanizeDate, pickElementDependOnValue } from '../utils/point.js';
+import { generatedDescriptions, generatedOffers } from './../mock/point-data-generator.js';
 
 
 const EMPTY_POINT = {
   type: getRandomArrayElement(types),
   offers: [],
   destination: {
-    name: getRandomArrayElement(cites),
+    name: getRandomArrayElement(cities),
     description: '',
     pictures: '',
   },
@@ -17,6 +20,8 @@ const EMPTY_POINT = {
   dateTo: dayjs(),
   basePrice: '',
 };
+
+const TRUE_FLAG = true;
 
 
 const createEventTypeItemTemplate = (availableTypes, currentType = '') => {
@@ -28,8 +33,8 @@ const createEventTypeItemTemplate = (availableTypes, currentType = '') => {
 };
 
 
-const createDestinationOptionTemplate = (cites) => {
-  return cites.map((city) => `<option value="${city}"></option>`).join('');
+const createDestinationOptionTemplate = (cities) => {
+  return cities.map((city) => `<option value="${city}"></option>`).join('');
 };
 
 
@@ -65,6 +70,15 @@ const createPhotoContainer = (destination) => {
 };
 
 
+const createEventDestinationTemplate = (destination) => {
+  return destination.description.length > 0 || destination.pictures.length > 0 ? `<section class="event__section  event__section--destination">
+  <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+  <p class="event__destination-description">${destination.description}</p>
+  ${createPhotoContainer(destination)}
+</section>` : '';
+};
+
+
 const createPointEditorTemplate = (pointData) => {
   const { type, dateFrom, dateTo, basePrice, offers, destination } = pointData;
   return `<li class="trip-events__item">
@@ -91,7 +105,7 @@ const createPointEditorTemplate = (pointData) => {
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
           <datalist id="destination-list-1">
-            ${createDestinationOptionTemplate(cites)}
+            ${createDestinationOptionTemplate(cities)}
           </datalist>
         </div>
 
@@ -119,44 +133,172 @@ const createPointEditorTemplate = (pointData) => {
       </header>
       <section class="event__details">
         ${createEventOfferTemplate(offers)}
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destination.description}</p>
-          ${createPhotoContainer(destination)}
-        </section>
+        ${createEventDestinationTemplate(destination)}
       </section>
     </form>
   </li>`;
 };
 
-export default class PointEditor extends AbstractView {
+
+export default class PointEditor extends SmartView {
   constructor(pointData = EMPTY_POINT) {
     super();
-    this._pointData = pointData;
+    this._pointState = PointEditor.parsePointDataToState(pointData);
+    this._datePickerStartDate = null;
+    this._datePickerExpirationDate = null;
+
     this._onRollUpClick = this._onRollUpClick.bind(this);
     this._onPointEditorSubmit = this._onPointEditorSubmit.bind(this);
+    this._onPointTypeChange = this._onPointTypeChange.bind(this);
+    this._onPointInput = this._onPointInput.bind(this);
+    this._onDateFromChange = this._onDateFromChange.bind(this);
+    this._onDateToChange = this._onDateToChange.bind(this);
+    this._setInnerListeners();
+    this._setDatePicker(this._datePickerStartDate, TRUE_FLAG);
+    this._setDatePicker(this._datePickerExpirationDate);
   }
+
+
+  static parsePointDataToState(pointData) {
+    return Object.assign(
+      {},
+      pointData,
+    );
+  }
+
+
+  static parseStateToPointData(state) {
+    state = Object.assign(
+      {},
+      state,
+    );
+    return state;
+  }
+
 
   getTemplate() {
-    return createPointEditorTemplate(this._pointData);
+    return createPointEditorTemplate(this._pointState);
   }
 
-  _onRollUpClick() {
-    this._callback.rollUpClick();
+
+  resetInput(pointData) {
+    this.updateData(PointEditor.parsePointDataToState(pointData));
   }
 
-  _onPointEditorSubmit(evt) {
-    evt.preventDefault();
-    this._callback.pointEditorSubmit();
-  }
 
   setRollUpClickListener(callback) {
     this._callback.rollUpClick = callback;
     this.getElement().querySelector('.event__rollup-btn').addEventListener('click', this._onRollUpClick);
   }
 
+
   setSubmitListener(callback) {
     this._callback.pointEditorSubmit = callback;
     this.getElement().querySelector('.event--edit').addEventListener('submit', this._onPointEditorSubmit);
+  }
+
+
+  restoreListeners() {
+    this._setInnerListeners();
+    this.setRollUpClickListener(this._callback.rollUpClick);
+    this.setSubmitListener(this._callback.pointEditorSubmit);
+    this._setDatePicker(this._datePickerStartDate, TRUE_FLAG);
+    this._setDatePicker(this._datePickerExpirationDate);
+  }
+
+
+  _setInnerListeners() {
+    this.getElement().querySelector('.event__type-group').addEventListener('change', this._onPointTypeChange);
+    this.getElement().querySelector('.event__input--destination').addEventListener('change', this._onPointInput);
+  }
+
+
+  _onRollUpClick() {
+    this._callback.rollUpClick();
+  }
+
+
+  _onPointEditorSubmit(evt) {
+    evt.preventDefault();
+    this._callback.pointEditorSubmit(PointEditor.parseStateToPointData(this._pointState));
+  }
+
+
+  _onPointTypeChange(evt) {
+    evt.preventDefault();
+    if (evt.target.tagName !== 'INPUT') {
+      return;
+    }
+    this.updateData({
+      type: evt.target.value,
+      offers: pickElementDependOnValue(evt.target.value, generatedOffers),
+    });
+  }
+
+
+  _onPointInput(evt) {
+    if (!cities.includes(evt.target.value)) {
+      evt.target.setCustomValidity('Необходимо выбрать одно из предложенных направлений');
+    } else {
+      evt.target.setCustomValidity('');
+      evt.preventDefault();
+      this.updateData({
+        destination: pickElementDependOnValue(evt.target.value, generatedDescriptions, TRUE_FLAG),
+      });
+    }
+    evt.target.reportValidity();
+  }
+
+
+  _setDatePicker(datePicker, flag) {
+    if (datePicker) {
+      datePicker.destroy();
+      datePicker = null;
+    }
+
+    if (flag) {
+      datePicker = flatpickr(
+        this.getElement().querySelector('#event-start-time-1'),
+        {
+          dateFormat: 'd/m/y H:i',
+          defaultDate: this._pointState.dateFrom,
+          onChange: this._onDateFromChange,
+        },
+      );
+      return;
+    }
+
+    datePicker = flatpickr(
+      this.getElement().querySelector('#event-end-time-1'),
+      {
+        dateFormat: 'd/m/y H:i',
+        defaultDate: this._pointState.dateTo,
+        onChange: this._onDateToChange,
+      },
+    );
+  }
+
+
+  _onDateFromChange(userInput) {
+    if (compareTwoDates(this._pointState.dateTo, userInput) < 0) {
+      this.updateData({
+        dateFrom: userInput,
+        dateTo: userInput,
+      });
+      return;
+    }
+    this.updateData({
+      dateFrom: userInput,
+    });
+  }
+
+
+  _onDateToChange(userInput) {
+    if (compareTwoDates(userInput, this._pointState.dateFrom) < 0) {
+      userInput = this._pointState.dateFrom;
+    }
+    this.updateData({
+      dateTo: userInput,
+    });
   }
 }
