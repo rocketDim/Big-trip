@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { FlagMode } from './../const.js';
 
 dayjs.extend(duration);
 
@@ -29,18 +30,28 @@ const dateConverter = {
 export const humanizeDate = (date, format = 'HH:mm') => dateConverter[format](date);
 
 
-export const compareTwoDates = (dateA, dateB) => dayjs(dateA).diff(dateB);
+export const compareTwoDates = (dateA, dateB) => {
+    if (dateA === null || dateB === null) {
+        return null;
+    }
+    return dayjs(dateA).diff(dateB);
+};
 
 
-export const getTimeDuration = (initialDate, expirationDate) => {
-    const difference = compareTwoDates(expirationDate, initialDate);
-    const duration = dayjs.duration(difference).$d;
+export const humanizeDateDuration = (tripTime) => {
+    const duration = dayjs.duration(tripTime).$d;
 
     const day = duration.days < DAYS_COUNT ? `0${duration.days}D` : `${duration.days}D`;
     const hour = duration.hours < DAYS_COUNT ? `0${duration.hours}H` : `${duration.hours}H`;
     const minute = duration.minutes < DAYS_COUNT ? `0${duration.minutes}M` : `${duration.minutes}M`;
-    const total = (difference / TimeFormat.MILLISECOND_PER_MINUTE) > TimeFormat.HOUR_PER_DAY ? `${day} ${hour} ${minute}` : (difference / TimeFormat.MILLISECOND_PER_MINUTE) > TimeFormat.MINUTE_PER_HOUR ? `${hour} ${minute}` : minute;
+    const total = (tripTime / TimeFormat.MILLISECOND_PER_MINUTE) > TimeFormat.HOUR_PER_DAY ? `${day} ${hour} ${minute}` : (tripTime / TimeFormat.MILLISECOND_PER_MINUTE) > TimeFormat.MINUTE_PER_HOUR ? `${hour} ${minute}` : minute;
     return total;
+};
+
+
+export const getTimeDuration = (initialDate, expirationDate) => {
+    const difference = compareTwoDates(expirationDate, initialDate);
+    return humanizeDateDuration(difference);
 };
 
 
@@ -51,4 +62,65 @@ export const isDateCurrent = (date) => dayjs().isSame(date, 'm');
 
 export const isEventContinues = (dateFrom, dateTo) => {
     return isDateExpired(dateFrom) && isDateInFuture(dateTo);
+};
+
+
+const getSortWeightForEmptyValue = (valueA, valueB) => {
+    if (valueA === null) {
+        return 1;
+    }
+
+    if (valueB === null) {
+        return -1;
+    }
+
+    if (valueA === null && valueB === null) {
+        return 0;
+    }
+
+    return null;
+};
+
+
+export const sortByPrice = (pointA, pointB) => {
+    const sortWeightForEmptyValue = getSortWeightForEmptyValue(pointA.basePrice, pointB.basePrice);
+
+    if (sortWeightForEmptyValue !== null) {
+        return sortWeightForEmptyValue;
+    }
+
+    return pointB.basePrice - pointA.basePrice;
+};
+
+
+export const sortByTime = (pointA, pointB) => {
+    const durationPointA = compareTwoDates(pointA.dateTo, pointA.dateFrom);
+    const durationPointB = compareTwoDates(pointB.dateTo, pointB.dateFrom);
+
+    const sortWeightForEmptyValue = getSortWeightForEmptyValue(durationPointA, durationPointB);
+
+    if (sortWeightForEmptyValue !== null) {
+        return sortWeightForEmptyValue;
+    }
+
+    return durationPointB - durationPointA;
+};
+
+
+export const sortByDate = (pointA, pointB) => {
+    const startDatePointA = pointA.dateFrom;
+    const startDatePointB = pointB.dateFrom;
+
+    const sortWeightForEmptyValue = getSortWeightForEmptyValue(startDatePointA, startDatePointB);
+
+    if (sortWeightForEmptyValue !== null) {
+        return sortWeightForEmptyValue;
+    }
+
+    return dayjs(startDatePointA).diff(startDatePointB);
+};
+
+
+export const isDateTheSame = (dateA, dateB) => {
+    return (dateA === null && dateB === null) ? FlagMode.TRUE : dayjs(dateA).isSame(dateB, 'm');
 };

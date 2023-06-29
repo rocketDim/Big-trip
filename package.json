@@ -11,9 +11,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "chart.js": "^4.3.0",
     "css-loader": "^6.8.1",
     "dayjs": "^1.11.8",
     "flatpickr": "^4.6.13",
+    "he": "^1.2.0",
     "nanoid": "^4.0.2",
     "node": "^20.2.0",
     "style-loader": "^3.3.3",
